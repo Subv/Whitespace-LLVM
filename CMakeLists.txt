@@ -15,4 +15,12 @@ include_directories(${LLVM_INCLUDE_DIRS})
 
 add_subdirectory(src)
 
+if (BUILD_TESTS)
+    # Includes Catch in the project:
+    add_subdirectory(cmake/ExternalProjects/catch)
+    include_directories(${CATCH_INCLUDE_DIR} ${COMMON_INCLUDES})
+    enable_testing(true)  # Enables unit-testing.
+
+    add_subdirectory(tests)
+endif()
 
