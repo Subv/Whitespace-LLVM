@@ -82,9 +82,9 @@ Statement *Parser::ParseIOStatement()
 
 // Reads from the Lexer in binary format until [LF] is reached and converts the value from binary to decimal
 // [Space] = 0 [Tab] = 1
-int Parser::ParseNumber()
+int64_t Parser::ParseNumber()
 {
-    int number = 0;
+    int64_t number = 0;
     // The first value represents the sign of the number
     Lexer::Tokens sign = _lexer.GetNextToken();
 

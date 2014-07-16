@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <cstdint>
+
 class Statement;
 class Lexer;
 
@@ -17,7 +19,7 @@ public:
     Statement* ParseFlowControlStatement();
     Statement* ParseIOStatement();
 
-    int ParseNumber();
+    int64_t ParseNumber();
 private:
     Lexer& _lexer;
 };
