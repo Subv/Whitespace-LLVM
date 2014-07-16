@@ -1,7 +1,6 @@
 #include "Parser.h"
 #include "Statements.h"
 #include "Lexer/Lexer.h"
-#include <iostream>
 
 Parser::Parser(Lexer &lexer) : _lexer(lexer)
 {
@@ -148,11 +147,91 @@ std::shared_ptr<Statement> Parser::ParseHeapAccessStatement()
 
 std::shared_ptr<Statement> Parser::ParseFlowControlStatement()
 {
+    if (_lexer.GetNextToken() == Lexer::TOKEN_NONE)
+        return nullptr;
+
+    switch (_lexer.GetToken())
+    {
+        case Lexer::TOKEN_SPACE:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return std::shared_ptr<Statement>(new MarkLabelStatement(ParseNumber()));
+                case Lexer::TOKEN_TAB:
+                    return std::shared_ptr<Statement>(new CallStatement(ParseNumber()));
+                case Lexer::TOKEN_LF:
+                    return std::shared_ptr<Statement>(new UnconditionalJumpStatement(ParseNumber()));
+                default:
+                    return nullptr;
+            }
+        }
+        case Lexer::TOKEN_TAB:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return std::shared_ptr<Statement>(new StackZeroJumpStatement(ParseNumber()));
+                case Lexer::TOKEN_TAB:
+                    return std::shared_ptr<Statement>(new StackNegativeJumpStatement(ParseNumber()));
+                case Lexer::TOKEN_LF:
+                    return std::shared_ptr<Statement>(new EndSubStatement());
+                default:
+                    return nullptr;
+            }
+        }
+        case Lexer::TOKEN_LF:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_LF:
+                    return std::shared_ptr<Statement>(new EndProgramStatement());
+                default:
+                    return nullptr;
+            }
+        }
+        default:
+            break;
+    }
+
     return nullptr;
 }
 
 std::shared_ptr<Statement> Parser::ParseIOStatement()
 {
+    if (_lexer.GetNextToken() == Lexer::TOKEN_NONE)
+        return nullptr;
+
+    switch (_lexer.GetToken())
+    {
+        case Lexer::TOKEN_SPACE:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return std::shared_ptr<Statement>(new OutputCharacterStatement());
+                case Lexer::TOKEN_TAB:
+                    return std::shared_ptr<Statement>(new OutputNumberStatement());
+                default:
+                    return nullptr;
+            }
+        }
+        case Lexer::TOKEN_TAB:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return std::shared_ptr<Statement>(new ReadCharacterStatement());
+                case Lexer::TOKEN_TAB:
+                    return std::shared_ptr<Statement>(new ReadNumberStatement());
+                default:
+                    return nullptr;
+            }
+        }
+        default:
+            break;
+    }
+
     return nullptr;
 }
 
