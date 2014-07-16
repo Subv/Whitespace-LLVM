@@ -19,7 +19,6 @@ public:
 
     Tokens GetToken() { return _currentToken; }
     Tokens GetNextToken();
-    Tokens Peek();
 
     bool Finished() { return _stream.eof(); }
 private:

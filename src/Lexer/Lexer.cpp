@@ -1,9 +1,8 @@
 #include "Lexer.h"
 
-Lexer::Lexer(std::istream& stream) : _stream(stream), _currentToken(TOKEN_NONE)
+Lexer::Lexer(std::istream& stream) : _currentToken(TOKEN_NONE), _stream(stream)
 {
-    // Read the first token in the file
-    GetNextToken();
+
 }
 
 Lexer::~Lexer()
@@ -13,13 +12,12 @@ Lexer::~Lexer()
 
 Lexer::Tokens Lexer::GetNextToken()
 {
-    _currentToken = ParseToken(_stream.get());
-    return GetToken();
-}
+    // Ignore all other characters unless we reach the end of the file
+    do
+        _currentToken = ParseToken(_stream.get());
+    while (_currentToken == TOKEN_NONE && !_stream.eof());
 
-Lexer::Tokens Lexer::Peek()
-{
-    return ParseToken(_stream.peek());
+    return GetToken();
 }
 
 Lexer::Tokens Lexer::ParseToken(char input)
@@ -31,13 +29,10 @@ Lexer::Tokens Lexer::ParseToken(char input)
     {
         case ' ':
             return TOKEN_SPACE;
-            break;
         case '\t':
             return TOKEN_TAB;
-            break;
         case '\n':
             return TOKEN_LF;
-            break;
         default:
             break;
     }

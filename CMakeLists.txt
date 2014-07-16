@@ -5,6 +5,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_BUILD_TYPE "Debug")
 
+if (CMAKE_C_COMPILER MATCHES "clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+endif()
+
 # A convenience variable:
 find_package(LLVM REQUIRED COMPONENTS jit native interpreter)
 

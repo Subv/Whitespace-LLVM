@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
-#include "Lexer.h"
+#include "Lexer/Lexer.h"
+#include "Parser/Parser.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,29 +15,10 @@ int main(int argc, char *argv[])
     }
 
     Lexer lexer(file);
+    Parser parser(lexer);
 
-    while (!lexer.Finished())
-    {
-        switch (lexer.GetToken())
-        {
-            case Lexer::TOKEN_LF:
-                std::cout << "Line Feed" << std::endl;
-                break;
-            case Lexer::TOKEN_SPACE:
-                std::cout << "Space" << std::endl;
-                break;
-            case Lexer::TOKEN_TAB:
-                std::cout << "Tab" << std::endl;
-                break;
-            case Lexer::TOKEN_NONE:
-                std::cout << "Ignored" << std::endl;
-                break;
-        }
+    parser.ParseStatement();
 
-        lexer.GetNextToken();
-    }
-
-    std::cin.get();
-
+    file.close();
     return 0;
 }
