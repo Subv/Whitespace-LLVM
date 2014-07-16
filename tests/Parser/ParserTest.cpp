@@ -17,6 +17,7 @@ TEST_CASE("Test the parsing of the stack push statement", "[parser stack push]")
     REQUIRE(std::static_pointer_cast<PushStatement>(parser.ParseStatement())->GetNumber() == -10);
     REQUIRE(std::static_pointer_cast<PushStatement>(parser.ParseStatement())->GetNumber() == 0);
     REQUIRE(std::static_pointer_cast<PushStatement>(parser.ParseStatement())->GetNumber() == 0);
+    REQUIRE(parser.ParseStatement() == nullptr);
 }
 
 TEST_CASE("Test the parsing of the stack copy statement", "[parser stack copy]") {
@@ -28,6 +29,7 @@ TEST_CASE("Test the parsing of the stack copy statement", "[parser stack copy]")
     REQUIRE(std::static_pointer_cast<CopyStatement>(parser.ParseStatement())->GetNumber() == 3);
     REQUIRE(std::static_pointer_cast<CopyStatement>(parser.ParseStatement())->GetNumber() == 48);
     REQUIRE(std::static_pointer_cast<CopyStatement>(parser.ParseStatement())->GetNumber() == -5);
+    REQUIRE(parser.ParseStatement() == nullptr);
 }
 
 TEST_CASE("Test the parsing of the stack slide statement", "[parser stack slide]") {
@@ -39,4 +41,5 @@ TEST_CASE("Test the parsing of the stack slide statement", "[parser stack slide]
     REQUIRE(std::static_pointer_cast<SlideStatement>(parser.ParseStatement())->GetNumber() == 3);
     REQUIRE(std::static_pointer_cast<SlideStatement>(parser.ParseStatement())->GetNumber() == 48);
     REQUIRE(std::static_pointer_cast<SlideStatement>(parser.ParseStatement())->GetNumber() == -11);
+    REQUIRE(parser.ParseStatement() == nullptr);
 }
