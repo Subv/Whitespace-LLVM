@@ -55,6 +55,34 @@ Statement *Parser::ParseStackManipulationStatement()
     {
         case Lexer::TOKEN_SPACE:
             return new PushStatement(ParseNumber());
+        case Lexer::TOKEN_LF:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return new DuplicateTopStatement();
+                case Lexer::TOKEN_TAB:
+                    return new SwapStatement();
+                case Lexer::TOKEN_LF:
+                    return new DiscardTopStatement();
+                default:
+                    return nullptr;
+            }
+        }
+        case Lexer::TOKEN_TAB:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return new CopyStatement(ParseNumber());
+                case Lexer::TOKEN_LF:
+                    return new SlideStatement(ParseNumber());
+                default:
+                    return nullptr;
+            }
+        }
+        default:
+            break;
     }
 
     return nullptr;
@@ -62,11 +90,59 @@ Statement *Parser::ParseStackManipulationStatement()
 
 Statement *Parser::ParseArithmeticStatement()
 {
+    if (_lexer.GetNextToken() == Lexer::TOKEN_NONE)
+        return nullptr;
+
+    switch (_lexer.GetToken())
+    {
+        case Lexer::TOKEN_SPACE:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return new AdditionStatement();
+                case Lexer::TOKEN_TAB:
+                    return new SubstractionStatement();
+                case Lexer::TOKEN_LF:
+                    return new MultiplicationStatement();
+                default:
+                    return nullptr;
+            }
+        }
+        case Lexer::TOKEN_TAB:
+        {
+            switch (_lexer.GetNextToken())
+            {
+                case Lexer::TOKEN_SPACE:
+                    return new IntegerDivisionStatement();
+                case Lexer::TOKEN_TAB:
+                    return new ModuloStatement();
+                default:
+                    return nullptr;
+            }
+        }
+        default:
+            break;
+    }
+
     return nullptr;
 }
 
 Statement *Parser::ParseHeapAccessStatement()
 {
+    if (_lexer.GetNextToken() == Lexer::TOKEN_NONE)
+        return nullptr;
+
+    switch (_lexer.GetToken())
+    {
+        case Lexer::TOKEN_SPACE:
+            return new HeapStoreStatement();
+        case Lexer::TOKEN_TAB:
+            return new HeapRetrieveStatement();
+        default:
+            break;
+    }
+
     return nullptr;
 }
 

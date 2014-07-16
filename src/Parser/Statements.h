@@ -34,6 +34,7 @@ public:
     CopyStatement(int64_t number) : _number(number) {}
     ~CopyStatement() {}
 
+    int64_t GetNumber() { return _number; }
 private:
     int64_t _number;
 };
@@ -56,8 +57,50 @@ public:
     SlideStatement(int64_t number) : _number(number) {}
     ~SlideStatement() {}
 
+    int64_t GetNumber() { return _number; }
 private:
     int64_t _number;
 };
 
+class AdditionStatement : public Statement
+{
+public:
+    ~AdditionStatement() {}
+};
+
+class SubstractionStatement : public Statement
+{
+public:
+    ~SubstractionStatement() {}
+};
+
+class MultiplicationStatement : public Statement
+{
+public:
+    ~MultiplicationStatement() {}
+};
+
+class IntegerDivisionStatement : public Statement
+{
+public:
+    ~IntegerDivisionStatement() {}
+};
+
+class ModuloStatement : public Statement
+{
+public:
+    ~ModuloStatement() {}
+};
+
+class HeapStoreStatement : public Statement
+{
+public:
+    ~HeapStoreStatement() {}
+};
+
+class HeapRetrieveStatement : public Statement
+{
+public:
+    ~HeapRetrieveStatement() {}
+};
 #endif

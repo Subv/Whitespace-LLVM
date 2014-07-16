@@ -17,3 +17,25 @@ TEST_CASE("Test the parsing of the stack push statement", "[parser stack push]")
     REQUIRE(static_cast<PushStatement*>(parser.ParseStatement())->GetNumber() == 0);
     REQUIRE(static_cast<PushStatement*>(parser.ParseStatement())->GetNumber() == 0);
 }
+
+TEST_CASE("Test the parsing of the stack copy statement", "[parser stack copy]") {
+    std::stringstream str;
+    str << " \t  \t\t\n \t  \t\t    \n \t \t   \t \t\n";
+    Lexer lexer(str);
+    Parser parser(lexer);
+
+    REQUIRE(static_cast<CopyStatement*>(parser.ParseStatement())->GetNumber() == 3);
+    REQUIRE(static_cast<CopyStatement*>(parser.ParseStatement())->GetNumber() == 48);
+    REQUIRE(static_cast<CopyStatement*>(parser.ParseStatement())->GetNumber() == -5);
+}
+
+TEST_CASE("Test the parsing of the stack slide statement", "[parser stack slide]") {
+    std::stringstream str;
+    str << " \t\n \t\t\n \t\n \t\t    \n \t\n\t   \t \t\t\n";
+    Lexer lexer(str);
+    Parser parser(lexer);
+
+    REQUIRE(static_cast<SlideStatement*>(parser.ParseStatement())->GetNumber() == 3);
+    REQUIRE(static_cast<SlideStatement*>(parser.ParseStatement())->GetNumber() == 48);
+    REQUIRE(static_cast<SlideStatement*>(parser.ParseStatement())->GetNumber() == -11);
+}
