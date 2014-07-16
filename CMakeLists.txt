@@ -13,9 +13,11 @@ link_libraries(${LLVM_LIBRARIES} ${LLVM_LD_FLAGS})
 link_directories(${LLVM_LIBRARY_DIRS})
 include_directories(${LLVM_INCLUDE_DIRS})
 
+set(BUILD_TESTS, 0)
+
 add_subdirectory(src)
 
-if (BUILD_TESTS)
+if (${BUILD_TESTS} EQUAL 1)
     # Includes Catch in the project:
     add_subdirectory(cmake/ExternalProjects/catch)
     include_directories(${CATCH_INCLUDE_DIR} ${COMMON_INCLUDES})
