@@ -7,6 +7,8 @@
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/TargetSelect.h"
 
+#include "llvm/Analysis/Verifier.h"
+
 using namespace llvm;
 
 Whitespace::Whitespace() : _programEnded(false)
@@ -22,9 +24,6 @@ Whitespace::Whitespace() : _programEnded(false)
 
     _endBlock = BasicBlock::Create(_context, "whitespaceReturn", _mainFunction);
     ReturnInst::Create(_context, _endBlock);
-
-    // Insert the branch at the end
-    _builder->SetInsertPoint(_builder->CreateBr(_endBlock));
 
     // Create references to getchar and putchar
     _putchar = cast<Function>(_module->getOrInsertFunction("putchar", _builder->getInt32Ty(), _builder->getInt32Ty(), nullptr));
@@ -89,7 +88,8 @@ Value* Whitespace::HeapRetrieve(Value* key)
 
 void Whitespace::PutChar(Value* val)
 {
-    auto call = _builder->CreateCall(_putchar, val, "_putchar");
+    auto trunc = _builder->CreateTrunc(val, _builder->getInt32Ty());
+    auto call = _builder->CreateCall(_putchar, trunc, "_putchar");
     call->setTailCall(false);
 }
 
@@ -97,7 +97,7 @@ Value* Whitespace::GetChar()
 {
     auto call = _builder->CreateCall(_getchar, "_getchar");
     call->setTailCall(false);
-    return call;
+    return _builder->CreateSExt(call, _builder->getInt64Ty());
 }
 
 void Whitespace::Dump()
@@ -107,6 +107,8 @@ void Whitespace::Dump()
 
 GenericValue Whitespace::Run()
 {
+    verifyModule(*_module);
+
     InitializeNativeTarget();
     ExecutionEngine* ee = EngineBuilder(_module).create();
     Function* func = GetMainFunction();

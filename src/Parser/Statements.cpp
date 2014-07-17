@@ -190,7 +190,11 @@ void MarkLabelStatement::CodeGen(Whitespace* whitespace)
         whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
     }
 
+    // Enter the label
+    whitespace->GetBuilder()->CreateBr(block);
+
     whitespace->GetBuilder()->SetInsertPoint(block);
+    whitespace->GetBuilder()->SetInsertPoint(whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock()));
 }
 
 void UnconditionalJumpStatement::CodeGen(Whitespace* whitespace)
@@ -220,9 +224,11 @@ void StackZeroJumpStatement::CodeGen(Whitespace* whitespace)
     }
 
     BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SZJElse", whitespace->GetMainFunction());
+
     whitespace->GetBuilder()->CreateCondBr(zeroCheck, block, elseBlock);
 
     whitespace->GetBuilder()->SetInsertPoint(elseBlock);
+    //whitespace->GetBuilder()->SetInsertPoint(whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock()));
 }
 
 void StackNegativeJumpStatement::CodeGen(Whitespace* whitespace)
@@ -238,6 +244,9 @@ void StackNegativeJumpStatement::CodeGen(Whitespace* whitespace)
     }
 
     BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SNJElse", whitespace->GetMainFunction());
+    auto brelse = BranchInst::Create(whitespace->GetEndBlock());
+    elseBlock->getInstList().push_back(brelse);
+
     whitespace->GetBuilder()->CreateCondBr(negCheck, block, elseBlock);
 
     whitespace->GetBuilder()->SetInsertPoint(elseBlock);
@@ -255,7 +264,7 @@ void CallStatement::CodeGen(Whitespace* whitespace)
     if (block == nullptr)
     {
         Function* func = cast<Function>(whitespace->GetModule()->getOrInsertFunction(tostring(_label), whitespace->GetBuilder()->getVoidTy(), nullptr));
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", func);
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "", func);
         whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
     }
 
@@ -264,6 +273,6 @@ void CallStatement::CodeGen(Whitespace* whitespace)
 
 void EndSubStatement::CodeGen(Whitespace* whitespace)
 {
-    whitespace->GetBuilder()->CreateRet(nullptr);
+    whitespace->GetBuilder()->CreateRetVoid();
     whitespace->MarkEndOfProgram();
 }
