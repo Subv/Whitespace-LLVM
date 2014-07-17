@@ -21,6 +21,7 @@ public:
     Tokens GetNextToken();
 
     bool Finished() { return _stream.eof(); }
+
 private:
     Tokens ParseToken(char input);
     Tokens _currentToken;

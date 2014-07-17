@@ -36,13 +36,14 @@ int main(int argc, char *argv[])
     std::stringstream str;
     str << "   \t     \t\n\t\n \t"; // Pushes 0x41 to the stack, and then prints it
 
-    Lexer lexer(str);
+    Lexer lexer(file);
     Parser parser(lexer);
 
     Whitespace* whitespace = new Whitespace();
 
     std::shared_ptr<Statement> statement = parser.ParseStatement();
 
+    // Now generate the code
     while (statement != nullptr)
     {
         statement->CodeGen(whitespace);
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
 
     InitializeNativeTarget();
     ExecutionEngine* ee = EngineBuilder(whitespace->GetModule()).create();
-    Function* func = whitespace->GetModule()->getFunction("whitespace");
+    Function* func = whitespace->GetMainFunction();
     std::vector<GenericValue> args;
     ee->runFunction(func, args);
 

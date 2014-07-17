@@ -3,8 +3,6 @@
 
 #include "llvm/IR/IRBuilder.h"
 
-#include <iostream>
-
 using namespace llvm;
 
 void PushStatement::CodeGen(Whitespace* whitespace)
@@ -79,8 +77,6 @@ void SlideStatement::CodeGen(Whitespace* whitespace)
 
 void AdditionStatement::CodeGen(Whitespace* whitespace)
 {
-    std::cout << "Adding" << std::endl;
-
     Value* rhs = whitespace->TopStack();
     whitespace->PopStack();
     Value* lhs = whitespace->TopStack();
@@ -155,22 +151,102 @@ void HeapRetrieveStatement::CodeGen(Whitespace* whitespace)
 
 void OutputCharacterStatement::CodeGen(Whitespace* whitespace)
 {
-
+    Value* val = whitespace->TopStack();
+    whitespace->PopStack();
+    whitespace->PutChar(val);
 }
 
 void OutputNumberStatement::CodeGen(Whitespace* whitespace)
 {
     Value* val = whitespace->TopStack();
     whitespace->PopStack();
-    whitespace->PutChar(val);
+    // Convert it to a number character
+    Value* number = whitespace->GetBuilder()->CreateAdd(val, whitespace->GetBuilder()->getInt64('0'));
+    whitespace->PutChar(number);
 }
 
 void ReadCharacterStatement::CodeGen(Whitespace* whitespace)
 {
-
+    Value* address = whitespace->TopStack();
+    whitespace->PopStack();
+    Value* read = whitespace->GetChar();
+    whitespace->HeapStore(address, read);
 }
 
 void ReadNumberStatement::CodeGen(Whitespace* whitespace)
 {
+    Value* address = whitespace->TopStack();
+    whitespace->PopStack();
+    Value* read = whitespace->GetChar();
+    whitespace->HeapStore(address, read);
+}
 
+void MarkLabelStatement::CodeGen(Whitespace* whitespace)
+{
+    // Try to get the block, it might have been created in a jump statement
+    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+
+    if (block == nullptr)
+    {
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
+        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
+    }
+
+    whitespace->GetBuilder()->SetInsertPoint(block);
+}
+
+void UnconditionalJumpStatement::CodeGen(Whitespace* whitespace)
+{
+    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+
+    if (block == nullptr)
+    {
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
+        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
+    }
+
+    whitespace->GetBuilder()->CreateBr(block);
+}
+
+void StackZeroJumpStatement::CodeGen(Whitespace* whitespace)
+{
+    Value* top = whitespace->TopStack();
+    Value* zeroCheck = whitespace->GetBuilder()->CreateICmpEQ(top, whitespace->GetBuilder()->getInt64(0), "zeroCheck");
+
+    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+
+    if (block == nullptr)
+    {
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
+        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
+    }
+
+    BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SZJElse", whitespace->GetMainFunction());
+    whitespace->GetBuilder()->CreateCondBr(zeroCheck, block, elseBlock);
+
+    whitespace->GetBuilder()->SetInsertPoint(elseBlock);
+}
+
+void StackNegativeJumpStatement::CodeGen(Whitespace* whitespace)
+{
+    Value* top = whitespace->TopStack();
+    Value* negCheck = whitespace->GetBuilder()->CreateICmpSLT(top, whitespace->GetBuilder()->getInt64(0), "negCheck");
+    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+
+    if (block == nullptr)
+    {
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
+        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
+    }
+
+    BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SNJElse", whitespace->GetMainFunction());
+    whitespace->GetBuilder()->CreateCondBr(negCheck, block, elseBlock);
+
+    whitespace->GetBuilder()->SetInsertPoint(elseBlock);
+}
+
+
+void EndProgramStatement::CodeGen(Whitespace* whitespace)
+{
+    whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock());
 }

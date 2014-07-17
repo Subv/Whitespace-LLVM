@@ -3,7 +3,6 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
 
-#include <iostream>
 using namespace llvm;
 
 Whitespace::Whitespace()
@@ -17,11 +16,11 @@ Whitespace::Whitespace()
 
     _builder = new IRBuilder<>(startBlock);
 
-    auto end = BasicBlock::Create(_context, "whitespaceReturn", _mainFunction);
-    ReturnInst::Create(_context, end);
+    _endBlock = BasicBlock::Create(_context, "whitespaceReturn", _mainFunction);
+    ReturnInst::Create(_context, _endBlock);
 
     // Insert the branch at the end
-    _builder->SetInsertPoint(_builder->CreateBr(end));
+    _builder->SetInsertPoint(_builder->CreateBr(_endBlock));
 
     // Create references to getchar and putchar
     _putchar = cast<Function>(_module->getOrInsertFunction("putchar", _builder->getInt32Ty(), _builder->getInt32Ty(), nullptr));
@@ -36,8 +35,15 @@ Whitespace::~Whitespace()
 
 void Whitespace::PutChar(Value* val)
 {
-    auto call = _builder->CreateCall(_putchar, val, "call putchar");
+    auto call = _builder->CreateCall(_putchar, val, "_putchar");
     call->setTailCall(false);
+}
+
+Value* Whitespace::GetChar()
+{
+    auto call = _builder->CreateCall(_getchar, "_getchar");
+    call->setTailCall(false);
+    return call;
 }
 
 void Whitespace::Dump()

@@ -17,6 +17,9 @@ Lexer::Tokens Lexer::GetNextToken()
         _currentToken = ParseToken(_stream.get());
     while (_currentToken == TOKEN_NONE && !_stream.eof());
 
+    if (_stream.eof())
+        return TOKEN_NONE;
+
     return GetToken();
 }
 

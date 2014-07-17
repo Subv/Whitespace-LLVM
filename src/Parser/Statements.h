@@ -141,6 +141,8 @@ public:
     MarkLabelStatement(uint64_t label) : _label(label) {}
     ~MarkLabelStatement() {}
 
+    void CodeGen(Whitespace* whitespace) override;
+
 private:
     uint64_t _label; // We use a number instead of a string for the label
 };
@@ -161,6 +163,8 @@ public:
     UnconditionalJumpStatement(uint64_t label) : _label(label) {}
     ~UnconditionalJumpStatement() {}
 
+    void CodeGen(Whitespace* whitespace) override;
+
 private:
     uint64_t _label;
 };
@@ -171,6 +175,8 @@ public:
     StackZeroJumpStatement(uint64_t label) : _label(label) {}
     ~StackZeroJumpStatement() {}
 
+    void CodeGen(Whitespace* whitespace) override;
+
 private:
     uint64_t _label;
 };
@@ -180,6 +186,8 @@ class StackNegativeJumpStatement : public Statement
 public:
     StackNegativeJumpStatement(uint64_t label) : _label(label) {}
     ~StackNegativeJumpStatement() {}
+
+    void CodeGen(Whitespace* whitespace) override;
 
 private:
     uint64_t _label;
@@ -195,6 +203,8 @@ class EndProgramStatement : public Statement
 {
 public:
     ~EndProgramStatement() {}
+
+    void CodeGen(Whitespace* whitespace) override;
 };
 
 class OutputCharacterStatement : public Statement
