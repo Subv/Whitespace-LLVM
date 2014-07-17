@@ -3,6 +3,10 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
 
+#include "llvm/ExecutionEngine/JIT.h"
+#include "llvm/Support/ManagedStatic.h"
+#include "llvm/Support/TargetSelect.h"
+
 using namespace llvm;
 
 Whitespace::Whitespace() : _programEnded(false)
@@ -28,6 +32,10 @@ Whitespace::Whitespace() : _programEnded(false)
 
     _runtimeStack = _builder->CreateAlloca(_builder->getInt64Ty(), _builder->getInt64(65335), "ProgramStack");
     _stackIndex = _builder->getInt32(-1);
+
+    // Allocate the heap, we only support 65535 heap allocations currently
+    _heap = _builder->CreateAlloca(_builder->getInt64Ty(), _builder->getInt64(65535), "ProgramHeap");
+    _heapIndex = _builder->getInt32(0);
 }
 
 Whitespace::~Whitespace()
@@ -53,6 +61,32 @@ void Whitespace::PushStack(Value* val)
     _builder->CreateStore(val, address);
 }
 
+Value* Whitespace::StackSize()
+{
+    return _builder->CreateAdd(_stackIndex, _builder->getInt32(1));
+}
+
+void Whitespace::HeapStore(Value* key, Value* value)
+{
+    _heapRelations[key] = _heapIndex;
+    auto ptr = _builder->CreateGEP(_heap, _heapIndex);
+    _builder->CreateStore(value, ptr);
+    _heapIndex = _builder->CreateAdd(_heapIndex, _builder->getInt32(1));
+}
+
+Value* Whitespace::HeapRetrieve(Value* key)
+{
+    if (_heapRelations.find(key) == _heapRelations.end())
+        return nullptr;
+
+    Value* index = _heapRelations[key];
+    if (index == nullptr)
+        return nullptr;
+
+    auto ptr = _builder->CreateGEP(_heap, index);
+    return _builder->CreateLoad(ptr);
+}
+
 void Whitespace::PutChar(Value* val)
 {
     auto call = _builder->CreateCall(_putchar, val, "_putchar");
@@ -69,4 +103,16 @@ Value* Whitespace::GetChar()
 void Whitespace::Dump()
 {
     _module->dump();
+}
+
+GenericValue Whitespace::Run()
+{
+    InitializeNativeTarget();
+    ExecutionEngine* ee = EngineBuilder(_module).create();
+    Function* func = GetMainFunction();
+    std::vector<GenericValue> args;
+    GenericValue gv = ee->runFunction(func, args);
+
+    delete ee;
+    return gv;
 }

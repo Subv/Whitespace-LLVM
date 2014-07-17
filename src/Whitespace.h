@@ -3,6 +3,9 @@
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/IRBuilder.h"
+
+#include "llvm/ExecutionEngine/GenericValue.h"
+
 #include <unordered_map>
 
 class Whitespace
@@ -14,10 +17,10 @@ public:
     void PopStack();
     llvm::Value* TopStack();
     void PushStack(llvm::Value* val);
-    llvm::Value* StackSize() { return _stackIndex; }
+    llvm::Value* StackSize();
 
-    void HeapStore(llvm::Value* key, llvm::Value* value) { _heap[key] = value; }
-    llvm::Value* HeapRetrieve(llvm::Value* key) { return _heap[key]; }
+    void HeapStore(llvm::Value* key, llvm::Value* value);
+    llvm::Value* HeapRetrieve(llvm::Value* key);
 
     llvm::IRBuilder<>* GetBuilder() { return _builder; }
     llvm::Module* GetModule() { return _module; }
@@ -35,6 +38,8 @@ public:
     bool ProgramEnded() { return _programEnded; }
 
     void Dump();
+
+    llvm::GenericValue Run();
 private:
     llvm::LLVMContext _context;
     llvm::Module* _module;
@@ -46,7 +51,9 @@ private:
     llvm::Value* _runtimeStack;
     llvm::Value* _stackIndex; // Current stack index
     bool _programEnded;
-    std::unordered_map<llvm::Value*, llvm::Value*> _heap;
+    std::unordered_map<llvm::Value*, llvm::Value*> _heapRelations;
+    llvm::Value* _heap;
+    llvm::Value* _heapIndex;
     std::unordered_map<llvm::Value*, llvm::Value*> _labels;
 };
 

@@ -15,33 +15,32 @@ TEST_CASE("Test the whitespace class general behavior", "[whitespace]") {
 TEST_CASE("Test the whitespace class stack implementation", "[whitespace stack]") {
     Whitespace whitespace;
 
-    REQUIRE(whitespace.StackSize() == 0);
+    REQUIRE(whitespace.StackSize() == whitespace.GetBuilder()->getInt32(0));
 
-    whitespace.PushStack(nullptr);
+    whitespace.PushStack(whitespace.GetBuilder()->getInt64(15));
 
-    REQUIRE(whitespace.StackSize() == 1);
+    REQUIRE(whitespace.StackSize() == whitespace.GetBuilder()->getInt32(1));
 
-    REQUIRE(whitespace.TopStack() == nullptr);
-
-    whitespace.PushStack(whitespace.GetBuilder()->getInt32(16));
+    whitespace.PushStack(whitespace.GetBuilder()->getInt64(16));
 
     REQUIRE(whitespace.TopStack() != nullptr);
 
-    llvm::Value* val = whitespace.TopStack();
-
-    REQUIRE(whitespace.StackSize() == 2);
-
-    // Constants share the same instance
-    REQUIRE(val == whitespace.GetBuilder()->getInt32(16));
+    REQUIRE(whitespace.StackSize() == whitespace.GetBuilder()->getInt32(2));
 
     whitespace.PopStack();
 
-    REQUIRE(whitespace.StackSize() == 1);
-    REQUIRE(whitespace.TopStack() == nullptr);
+    // Make the function return the top value in its stack
+    whitespace.GetBuilder()->CreateRet(whitespace.TopStack());
+
+    auto ret = whitespace.Run();
+
+    REQUIRE(ret.IntVal == 15);
+
+    REQUIRE(whitespace.StackSize() == whitespace.GetBuilder()->getInt32(1));
 
     whitespace.PopStack();
 
-    REQUIRE(whitespace.StackSize() == 0);
+    REQUIRE(whitespace.StackSize() == whitespace.GetBuilder()->getInt32(0));
 }
 
 TEST_CASE("Test the whitespace class heap implementation", "[whitespace heap]") {
@@ -52,10 +51,11 @@ TEST_CASE("Test the whitespace class heap implementation", "[whitespace heap]") 
 
     whitespace.HeapStore(whitespace.GetBuilder()->getInt32(64), whitespace.GetBuilder()->getInt8(15));
 
-    REQUIRE(whitespace.HeapRetrieve(whitespace.GetBuilder()->getInt32(64)) == whitespace.GetBuilder()->getInt8(15));
+    whitespace.GetBuilder()->CreateRet(whitespace.HeapRetrieve(whitespace.GetBuilder()->getInt32(64)));
+
+    auto ret = whitespace.Run();
+
+    REQUIRE(ret.IntVal == 15);
+
     REQUIRE(whitespace.HeapRetrieve(whitespace.GetBuilder()->getInt8(64)) == nullptr);
-
-    whitespace.HeapStore(whitespace.GetBuilder()->getInt32(64), nullptr);
-
-    REQUIRE(whitespace.HeapRetrieve(whitespace.GetBuilder()->getInt32(64)) == nullptr);
 }

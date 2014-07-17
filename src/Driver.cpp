@@ -10,11 +10,6 @@
 #include "llvm/IR/Intrinsics.h"
 #include "llvm/Analysis/Verifier.h"
 
-#include "llvm/ExecutionEngine/GenericValue.h"
-#include "llvm/ExecutionEngine/JIT.h"
-#include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/TargetSelect.h"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -54,16 +49,8 @@ int main(int argc, char *argv[])
 
     whitespace->Dump();
 
-    InitializeNativeTarget();
-    ExecutionEngine* ee = EngineBuilder(whitespace->GetModule()).create();
-    Function* func = whitespace->GetMainFunction();
-    std::vector<GenericValue> args;
-    ee->runFunction(func, args);
+    whitespace->Run();
 
-    delete ee;
-    delete whitespace;
-
-    llvm_shutdown();
     file.close();
     return 0;
 }
