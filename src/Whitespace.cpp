@@ -30,7 +30,6 @@ Whitespace::Whitespace() : _programEnded(false)
 Whitespace::~Whitespace()
 {
     delete _builder;
-    delete _module;
 }
 
 void Whitespace::PutChar(Value* val)

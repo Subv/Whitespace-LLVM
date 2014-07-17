@@ -25,7 +25,7 @@ using namespace llvm;
 int main(int argc, char *argv[])
 {
     std::ifstream file;
-    file.open("name.ws", std::ifstream::in);
+    file.open("test.ws", std::ifstream::in);
 
     if (!file.is_open())
     {
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     std::vector<GenericValue> args;
     ee->runFunction(func, args);
 
+    delete ee;
     delete whitespace;
 
     llvm_shutdown();
