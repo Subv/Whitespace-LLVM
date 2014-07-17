@@ -158,7 +158,6 @@ void OutputCharacterStatement::CodeGen(Whitespace* whitespace)
 
 }
 
-
 void OutputNumberStatement::CodeGen(Whitespace* whitespace)
 {
     Value* val = whitespace->TopStack();
@@ -166,12 +165,10 @@ void OutputNumberStatement::CodeGen(Whitespace* whitespace)
     whitespace->PutChar(val);
 }
 
-
 void ReadCharacterStatement::CodeGen(Whitespace* whitespace)
 {
 
 }
-
 
 void ReadNumberStatement::CodeGen(Whitespace* whitespace)
 {
