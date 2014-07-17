@@ -2,8 +2,18 @@
 #include "Whitespace.h"
 
 #include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Module.h"
+
+#include <sstream>
 
 using namespace llvm;
+
+static std::string tostring(int64_t value)
+{
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
 
 void PushStatement::CodeGen(Whitespace* whitespace)
 {
@@ -183,6 +193,20 @@ void ReadNumberStatement::CodeGen(Whitespace* whitespace)
 
 void MarkLabelStatement::CodeGen(Whitespace* whitespace)
 {
+    if (whitespace->ProgramEnded())
+    {
+         // Create a function instead of a block
+        Function* func = cast<Function>(whitespace->GetModule()->getOrInsertFunction(tostring(_label), whitespace->GetBuilder()->getVoidTy(), nullptr));
+        BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+        if (block == nullptr)
+        {
+            block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "FuncBB", func);
+            whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), func);
+        }
+        whitespace->GetBuilder()->SetInsertPoint(block);
+        return;
+    }
+
     // Try to get the block, it might have been created in a jump statement
     BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
 
@@ -245,8 +269,27 @@ void StackNegativeJumpStatement::CodeGen(Whitespace* whitespace)
     whitespace->GetBuilder()->SetInsertPoint(elseBlock);
 }
 
-
 void EndProgramStatement::CodeGen(Whitespace* whitespace)
 {
     whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock());
+}
+
+void CallStatement::CodeGen(Whitespace* whitespace)
+{
+    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
+
+    if (block == nullptr)
+    {
+        Function* func = cast<Function>(whitespace->GetModule()->getOrInsertFunction(tostring(_label), whitespace->GetBuilder()->getVoidTy(), nullptr));
+        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", func);
+        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
+    }
+
+    whitespace->GetBuilder()->CreateCall(block->getParent(), "Call");
+}
+
+void EndSubStatement::CodeGen(Whitespace* whitespace)
+{
+    whitespace->GetBuilder()->CreateRet(nullptr);
+    whitespace->MarkEndOfProgram();
 }

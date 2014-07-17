@@ -5,7 +5,7 @@
 
 using namespace llvm;
 
-Whitespace::Whitespace()
+Whitespace::Whitespace() : _programEnded(false)
 {
     _module = new Module("MainModule", _context);
 

@@ -25,7 +25,7 @@ using namespace llvm;
 int main(int argc, char *argv[])
 {
     std::ifstream file;
-    file.open("test.ws", std::ifstream::in);
+    file.open("name.ws", std::ifstream::in);
 
     if (!file.is_open())
     {
@@ -47,10 +47,12 @@ int main(int argc, char *argv[])
     while (statement != nullptr)
     {
         statement->CodeGen(whitespace);
+        std::cout << statement->ToString() << std::endl;
+
         statement = parser.ParseStatement();
     }
 
-    whitespace->Dump();
+    //whitespace->Dump();
 
     InitializeNativeTarget();
     ExecutionEngine* ee = EngineBuilder(whitespace->GetModule()).create();

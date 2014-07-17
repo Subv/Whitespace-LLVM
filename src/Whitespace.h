@@ -32,6 +32,9 @@ public:
     llvm::Function* GetMainFunction() { return _mainFunction; }
     llvm::BasicBlock* GetEndBlock() { return _endBlock; }
 
+    void MarkEndOfProgram() { _programEnded = true; }
+    bool ProgramEnded() { return _programEnded; }
+
     void Dump();
 private:
     std::stack<llvm::Value*> _stack;
@@ -42,6 +45,7 @@ private:
     llvm::BasicBlock* _endBlock;
     llvm::Function* _putchar;
     llvm::Function* _getchar;
+    bool _programEnded;
     std::unordered_map<llvm::Value*, llvm::Value*> _heap;
     std::unordered_map<llvm::Value*, llvm::Value*> _labels;
 };
