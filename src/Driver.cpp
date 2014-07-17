@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         statement = parser.ParseStatement();
     }
 
-    //whitespace->Dump();
+    whitespace->Dump();
 
     InitializeNativeTarget();
     ExecutionEngine* ee = EngineBuilder(whitespace->GetModule()).create();

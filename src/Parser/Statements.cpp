@@ -28,33 +28,7 @@ void DuplicateTopStatement::CodeGen(Whitespace* whitespace)
 
 void CopyStatement::CodeGen(Whitespace* whitespace)
 {
-    // TODO: This code is ugly and probably wrong, is there any other way to do this?
-    if (whitespace->StackSize() <= _number)
-        return;
-
-    std::stack<Value*> backup;
-
-    int n = 0;
-    while (n < _number)
-    {
-        Value* val = whitespace->TopStack();
-        backup.push(val);
-
-        whitespace->PopStack();
-        ++n;
-    }
-
-    Value* duplicate = whitespace->TopStack();
-
-    // Reinsert everything
-    while (!backup.empty())
-    {
-        Value* val = backup.top();
-        whitespace->PushStack(val);
-    }
-
-    // Now insert the new item
-    whitespace->PushStack(duplicate);
+    // TODO
 }
 
 void SwapStatement::CodeGen(Whitespace* whitespace)

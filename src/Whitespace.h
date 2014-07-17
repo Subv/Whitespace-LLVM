@@ -3,7 +3,6 @@
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/IRBuilder.h"
-#include <stack>
 #include <unordered_map>
 
 class Whitespace
@@ -12,10 +11,10 @@ public:
     Whitespace();
     ~Whitespace();
 
-    void PopStack() { _stack.pop(); }
-    llvm::Value* TopStack() { return _stack.top(); }
-    void PushStack(llvm::Value* val) { _stack.push(val); }
-    size_t StackSize() { return _stack.size(); }
+    void PopStack();
+    llvm::Value* TopStack();
+    void PushStack(llvm::Value* val);
+    llvm::Value* StackSize() { return _stackIndex; }
 
     void HeapStore(llvm::Value* key, llvm::Value* value) { _heap[key] = value; }
     llvm::Value* HeapRetrieve(llvm::Value* key) { return _heap[key]; }
@@ -37,7 +36,6 @@ public:
 
     void Dump();
 private:
-    std::stack<llvm::Value*> _stack;
     llvm::LLVMContext _context;
     llvm::Module* _module;
     llvm::IRBuilder<>* _builder;
@@ -45,6 +43,8 @@ private:
     llvm::BasicBlock* _endBlock;
     llvm::Function* _putchar;
     llvm::Function* _getchar;
+    llvm::Value* _runtimeStack;
+    llvm::Value* _stackIndex; // Current stack index
     bool _programEnded;
     std::unordered_map<llvm::Value*, llvm::Value*> _heap;
     std::unordered_map<llvm::Value*, llvm::Value*> _labels;

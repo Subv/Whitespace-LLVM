@@ -25,11 +25,32 @@ Whitespace::Whitespace() : _programEnded(false)
     // Create references to getchar and putchar
     _putchar = cast<Function>(_module->getOrInsertFunction("putchar", _builder->getInt32Ty(), _builder->getInt32Ty(), nullptr));
     _getchar = cast<Function>(_module->getOrInsertFunction("getchar", _builder->getInt32Ty(), nullptr));
+
+    _runtimeStack = _builder->CreateAlloca(_builder->getInt64Ty(), _builder->getInt64(65335), "ProgramStack");
+    _stackIndex = _builder->getInt32(-1);
 }
 
 Whitespace::~Whitespace()
 {
     delete _builder;
+}
+
+void Whitespace::PopStack()
+{
+    _stackIndex = _builder->CreateSub(_stackIndex, _builder->getInt32(1));
+}
+
+Value* Whitespace::TopStack()
+{
+    Value* address = _builder->CreateGEP(_runtimeStack, _stackIndex);
+    return _builder->CreateLoad(address);
+}
+
+void Whitespace::PushStack(Value* val)
+{
+    _stackIndex = _builder->CreateAdd(_stackIndex, _builder->getInt32(1));
+    Value* address = _builder->CreateGEP(_runtimeStack, _stackIndex);
+    _builder->CreateStore(val, address);
 }
 
 void Whitespace::PutChar(Value* val)
