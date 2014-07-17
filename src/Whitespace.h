@@ -23,8 +23,6 @@ public:
     llvm::IRBuilder<>* GetBuilder() { return _builder; }
     llvm::Module* GetModule() { return _module; }
 
-    void EndMainBlock();
-
     void PutChar(llvm::Value* val);
 
     void Dump();
@@ -36,7 +34,6 @@ private:
     llvm::Function* _mainFunction;
     llvm::Function* _putchar;
     llvm::Function* _getchar;
-    llvm::BasicBlock* _endBlock;
     std::unordered_map<llvm::Value*, llvm::Value*> _heap;
 };
 

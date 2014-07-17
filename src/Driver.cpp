@@ -49,8 +49,6 @@ int main(int argc, char *argv[])
         statement = parser.ParseStatement();
     }
 
-    whitespace->EndMainBlock();
-
     whitespace->Dump();
 
     InitializeNativeTarget();

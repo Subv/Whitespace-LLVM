@@ -17,8 +17,11 @@ Whitespace::Whitespace()
 
     _builder = new IRBuilder<>(startBlock);
 
-    _endBlock = BasicBlock::Create(_context, "whitespaceReturn", _mainFunction);
-    ReturnInst::Create(_context, _endBlock);
+    auto end = BasicBlock::Create(_context, "whitespaceReturn", _mainFunction);
+    ReturnInst::Create(_context, end);
+
+    // Insert the branch at the end
+    _builder->SetInsertPoint(_builder->CreateBr(end));
 
     // Create references to getchar and putchar
     _putchar = cast<Function>(_module->getOrInsertFunction("putchar", _builder->getInt32Ty(), _builder->getInt32Ty(), nullptr));
@@ -29,11 +32,6 @@ Whitespace::~Whitespace()
 {
     delete _builder;
     delete _module;
-}
-
-void Whitespace::EndMainBlock()
-{
-    _builder->CreateBr(_endBlock);
 }
 
 void Whitespace::PutChar(Value* val)
