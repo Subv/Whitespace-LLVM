@@ -20,7 +20,7 @@ using namespace llvm;
 int main(int argc, char *argv[])
 {
     std::ifstream file;
-    file.open("test.ws", std::ifstream::in);
+    file.open("count.ws", std::ifstream::in);
 
     if (!file.is_open())
     {

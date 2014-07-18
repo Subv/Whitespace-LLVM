@@ -166,89 +166,22 @@ void ReadNumberStatement::CodeGen(Whitespace* whitespace)
 
 void MarkLabelStatement::CodeGen(Whitespace* whitespace)
 {
-    if (whitespace->ProgramEnded())
-    {
-         // Create a function instead of a block
-        Function* func = cast<Function>(whitespace->GetModule()->getOrInsertFunction(tostring(_label), whitespace->GetBuilder()->getVoidTy(), nullptr));
-        BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-        if (block == nullptr)
-        {
-            block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "FuncBB", func);
-            whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), func);
-        }
-        whitespace->GetBuilder()->SetInsertPoint(block);
-        return;
-    }
-
-    // Try to get the block, it might have been created in a jump statement
-    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-
-    if (block == nullptr)
-    {
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
-        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
-    }
-
-    // Enter the label
-    whitespace->GetBuilder()->CreateBr(block);
-
-    whitespace->GetBuilder()->SetInsertPoint(block);
-    whitespace->GetBuilder()->SetInsertPoint(whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock()));
+    // TODO
 }
 
 void UnconditionalJumpStatement::CodeGen(Whitespace* whitespace)
 {
-    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-
-    if (block == nullptr)
-    {
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
-        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
-    }
-
-    whitespace->GetBuilder()->CreateBr(block);
+    // TODO
 }
 
 void StackZeroJumpStatement::CodeGen(Whitespace* whitespace)
 {
-    Value* top = whitespace->TopStack();
-    Value* zeroCheck = whitespace->GetBuilder()->CreateICmpEQ(top, whitespace->GetBuilder()->getInt64(0), "zeroCheck");
-
-    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-
-    if (block == nullptr)
-    {
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
-        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
-    }
-
-    BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SZJElse", whitespace->GetMainFunction());
-
-    whitespace->GetBuilder()->CreateCondBr(zeroCheck, block, elseBlock);
-
-    whitespace->GetBuilder()->SetInsertPoint(elseBlock);
-    //whitespace->GetBuilder()->SetInsertPoint(whitespace->GetBuilder()->CreateBr(whitespace->GetEndBlock()));
+    // TODO
 }
 
 void StackNegativeJumpStatement::CodeGen(Whitespace* whitespace)
 {
-    Value* top = whitespace->TopStack();
-    Value* negCheck = whitespace->GetBuilder()->CreateICmpSLT(top, whitespace->GetBuilder()->getInt64(0), "negCheck");
-    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-
-    if (block == nullptr)
-    {
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "Inner", whitespace->GetMainFunction());
-        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
-    }
-
-    BasicBlock* elseBlock = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "SNJElse", whitespace->GetMainFunction());
-    auto brelse = BranchInst::Create(whitespace->GetEndBlock());
-    elseBlock->getInstList().push_back(brelse);
-
-    whitespace->GetBuilder()->CreateCondBr(negCheck, block, elseBlock);
-
-    whitespace->GetBuilder()->SetInsertPoint(elseBlock);
+    // TODO
 }
 
 void EndProgramStatement::CodeGen(Whitespace* whitespace)
@@ -258,20 +191,10 @@ void EndProgramStatement::CodeGen(Whitespace* whitespace)
 
 void CallStatement::CodeGen(Whitespace* whitespace)
 {
-    BasicBlock* block = cast<BasicBlock>(whitespace->GetJumpLabel(whitespace->GetBuilder()->getInt64(_label)));
-
-    if (block == nullptr)
-    {
-        Function* func = cast<Function>(whitespace->GetModule()->getOrInsertFunction(tostring(_label), whitespace->GetBuilder()->getVoidTy(), nullptr));
-        block = BasicBlock::Create(whitespace->GetBuilder()->getContext(), "", func);
-        whitespace->SetJumpLabel(whitespace->GetBuilder()->getInt64(_label), block);
-    }
-
-    whitespace->GetBuilder()->CreateCall(block->getParent(), "Call");
+    // TODO
 }
 
 void EndSubStatement::CodeGen(Whitespace* whitespace)
 {
-    whitespace->GetBuilder()->CreateRetVoid();
-    whitespace->MarkEndOfProgram();
+    // TODO
 }
