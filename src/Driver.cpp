@@ -41,9 +41,8 @@ int main(int argc, char *argv[])
     // Now generate the code
     while (statement != nullptr)
     {
-        statement->CodeGen(whitespace);
         std::cout << statement->ToString() << std::endl;
-
+        statement->CodeGen(whitespace);
         statement = parser.ParseStatement();
     }
 

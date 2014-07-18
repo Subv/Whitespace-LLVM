@@ -51,9 +51,6 @@ private:
     llvm::Value* _runtimeStack;
     llvm::Value* _stackIndex; // Current stack index
     bool _programEnded;
-    std::unordered_map<llvm::Value*, llvm::Value*> _heapRelations;
-    llvm::Value* _heap;
-    llvm::Value* _heapIndex;
     std::unordered_map<llvm::Value*, llvm::Value*> _labels;
 };
 

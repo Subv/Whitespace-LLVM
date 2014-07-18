@@ -30,11 +30,8 @@ Whitespace::Whitespace() : _programEnded(false)
     _getchar = cast<Function>(_module->getOrInsertFunction("getchar", _builder->getInt32Ty(), nullptr));
 
     _runtimeStack = _builder->CreateAlloca(_builder->getInt64Ty(), _builder->getInt64(65335), "ProgramStack");
-    _stackIndex = _builder->getInt32(-1);
-
-    // Allocate the heap, we only support 65535 heap allocations currently
-    _heap = _builder->CreateAlloca(_builder->getInt64Ty(), _builder->getInt64(65535), "ProgramHeap");
-    _heapIndex = _builder->getInt32(0);
+    _stackIndex = _builder->CreateAlloca(_builder->getInt32Ty(), nullptr, "StackPointer");
+    _builder->CreateStore(_builder->getInt32(-1), _stackIndex);
 }
 
 Whitespace::~Whitespace()
@@ -44,46 +41,36 @@ Whitespace::~Whitespace()
 
 void Whitespace::PopStack()
 {
-    _stackIndex = _builder->CreateSub(_stackIndex, _builder->getInt32(1));
+    _builder->CreateStore(_builder->CreateSub(_builder->CreateLoad(_stackIndex), _builder->getInt32(1)), _stackIndex);
 }
 
 Value* Whitespace::TopStack()
 {
-    Value* address = _builder->CreateGEP(_runtimeStack, _stackIndex);
+    Value* address = _builder->CreateGEP(_runtimeStack, _builder->CreateLoad(_stackIndex));
     return _builder->CreateLoad(address);
 }
 
 void Whitespace::PushStack(Value* val)
 {
-    _stackIndex = _builder->CreateAdd(_stackIndex, _builder->getInt32(1));
-    Value* address = _builder->CreateGEP(_runtimeStack, _stackIndex);
+    _builder->CreateStore(_builder->CreateAdd(_builder->CreateLoad(_stackIndex), _builder->getInt32(1)), _stackIndex);
+    Value* address = _builder->CreateGEP(_runtimeStack, _builder->CreateLoad(_stackIndex));
     _builder->CreateStore(val, address);
 }
 
 Value* Whitespace::StackSize()
 {
-    return _builder->CreateAdd(_stackIndex, _builder->getInt32(1));
+    return _builder->CreateAdd(_builder->CreateLoad(_stackIndex), _builder->getInt32(1));
 }
 
 void Whitespace::HeapStore(Value* key, Value* value)
 {
-    _heapRelations[key] = _heapIndex;
-    auto ptr = _builder->CreateGEP(_heap, _heapIndex);
-    _builder->CreateStore(value, ptr);
-    _heapIndex = _builder->CreateAdd(_heapIndex, _builder->getInt32(1));
+    // TODO
 }
 
 Value* Whitespace::HeapRetrieve(Value* key)
 {
-    if (_heapRelations.find(key) == _heapRelations.end())
-        return nullptr;
-
-    Value* index = _heapRelations[key];
-    if (index == nullptr)
-        return nullptr;
-
-    auto ptr = _builder->CreateGEP(_heap, index);
-    return _builder->CreateLoad(ptr);
+    // TODO
+    return nullptr;
 }
 
 void Whitespace::PutChar(Value* val)

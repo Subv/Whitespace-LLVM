@@ -121,7 +121,7 @@ void HeapStoreStatement::CodeGen(Whitespace* whitespace)
     Value* address = whitespace->TopStack();
     whitespace->PopStack();
 
-    whitespace->HeapStore(address, value);
+    // TODO
 }
 
 void HeapRetrieveStatement::CodeGen(Whitespace* whitespace)
@@ -129,8 +129,7 @@ void HeapRetrieveStatement::CodeGen(Whitespace* whitespace)
     Value* address = whitespace->TopStack();
     whitespace->PopStack();
 
-    Value* value = whitespace->HeapRetrieve(address);
-    whitespace->PushStack(value);
+    // TODO
 }
 
 void OutputCharacterStatement::CodeGen(Whitespace* whitespace)
